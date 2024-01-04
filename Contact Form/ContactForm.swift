@@ -9,26 +9,40 @@ import SwiftUI
 
 struct ContactForm: View {
     
+    //MARK: - Properties
+    
     @State private var emailAddress = ""
     @State private var message = ""
+    @State private var subject: subjectOptions = .help
+    @State private var preferredContactMethod = ContactMethod.email
+    @State private var phoneNumber = ""
     @State private var includeLogs = false
     
+    //MARK: - ContactForm body
+    
     var body: some View {
-        Form {
-            Section ("How can we reach you?") {
-                emailField
+        NavigationStack {
+            Form {
+                Section ("How can we reach you?") {
+                    contactMethodField
+                }
+                
+                Section ("What we can help you with") {
+                    subjectField
+                }
+                
+                Section("Briefly explain what's going on") {
+                    messageField
+                }
+                
+                Section {
+                    includeLogsField
+                } footer: {
+                    Text("This information will be sent anonymously.")
+                }
+                submitButton
             }
-            
-            Section("Briefly explain what's going on") {
-                messageField
-            }
-            
-            Section {
-                includeLogsField
-            } footer: {
-                Text("This information will be sent anonymously.")
-            }
-            submitButton
+            .navigationTitle(viewTitle)
         }
     }
 }
@@ -43,12 +57,7 @@ struct ContactForm: View {
 
 extension ContactForm {
     
-    var emailField: some View {
-        LabeledContent("Email Address") {
-            TextField("Enter Email Address", text: $emailAddress)
-                .multilineTextAlignment(.trailing)
-        }
-    }
+    var viewTitle: String { "Contact Us" }
     
     var messageField: some View {
         
@@ -61,7 +70,7 @@ extension ContactForm {
         Toggle("Include Logs", isOn: $includeLogs)
     }
     
-    var submitButton:some View {
+    var submitButton: some View {
         
         Section {
             Button {
@@ -73,12 +82,69 @@ extension ContactForm {
                 
             }
             .listRowBackground(Color.clear)
-            .tint(.blue)
+            .tint(.accentColor)
             .buttonStyle(.bordered)
         }
         
     }
     
+    var subjectField: some View {
+        
+        Picker("Subject", selection: $subject) {
+            ForEach(subjectOptions.allCases) {option in
+                Text(option.rawValue.capitalized)
+            }
+        }
+        .tint(.accentColor)
+        
+    }
     
+    var contactMethodField: some View {
+        
+        
+        LabeledContent {
+            
+            Group {
+                switch preferredContactMethod {
+                case .email:
+                    TextField("Email Address", text: $emailAddress)
+                    
+                case .phone:
+                    TextField("Phone Number", text: $phoneNumber)
+                }
+            }
+            .multilineTextAlignment(.trailing)
+            .frame(maxWidth: .infinity)
+            
+        } label: {
+            
+            Picker("", selection: $preferredContactMethod) {
+                ForEach (ContactMethod.allCases) { method in
+                    Text(method.rawValue.capitalized)
+                }
+            }
+            //.pickerStyle(.segmented)
+            .labelsHidden()
+            .tint(.accentColor)
+        }
+
+        
+      
+    }
+    
+    enum subjectOptions: String ,CaseIterable ,Identifiable {
+       case help
+       case suggestion
+       case bugReport = "Bug Report"
+        
+        var id: Self { self }
+        
+    }
+    
+    enum ContactMethod: String, CaseIterable, Identifiable {
+        case email, phone
+        
+        var id: Self {self}
+    }
     
 }
