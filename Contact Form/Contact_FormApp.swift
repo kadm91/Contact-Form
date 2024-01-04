@@ -11,7 +11,7 @@ import SwiftUI
 struct Contact_FormApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContactForm()
         }
     }
 }
